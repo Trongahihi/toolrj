@@ -846,7 +846,7 @@ class RobloxManager:
                 cmd_splash = [
                     'am', 'start',
                     '-a', 'android.intent.action.MAIN',
-                    '-n', f'{package_name}/com.manh.client.startup.ActivitySplash'
+                    '-n', f'{package_name}/com.roblox.client.startup.ActivitySplash'
                 ]
                 result_splash = subprocess.run(cmd_splash, capture_output=True, text=True)
                 if result_splash.returncode != 0:
