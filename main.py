@@ -1227,7 +1227,7 @@ class ExecutorManager:
                         console.print(f"[bold yellow][ Shouko.dev ] - No valid path found to write Lua script for {executor_name}[/bold yellow]")
 
     @staticmethod
-    def check_executor_status(package_name, continuous=True, max_wait_time=180):
+    def check_executor_status(package_name, continuous=True, max_wait_time=90):
         retry_timeout = time.time() + max_wait_time
         while True:
             for workspace in globals()["workspace_paths"]:
@@ -1253,7 +1253,7 @@ class ExecutorManager:
                     start_time = time.time()
                     executor_loaded = False
 
-                    while time.time() - start_time < 180:
+                    while time.time() - start_time < 90:
                         if ExecutorManager.check_executor_status(package_name):
                             globals()["package_statuses"][package_name]["Status"] = "\033[1;32mExecutor has loaded successfully\033[0m"
                             UIManager.update_status_table()
@@ -1624,7 +1624,7 @@ def main():
     
     if not globals().get("command_8_configured", False):
         globals()["check_exec_enable"] = "1"
-        globals()["lua_script_template"] = 'loadstring(game:HttpGet("https://repo.rokidmanager.com/RokidManager/neyoshiiuem/main/checkonline.lua"))()'
+        globals()["lua_script_template"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Trongahihi/Trongahihi/refs/heads/main/check_executor"))()'
         config_file = os.path.join("Shouko.dev", "checkui.lua")
         try:
             os.makedirs("Shouko.dev", exist_ok=True)
@@ -1746,26 +1746,19 @@ def main():
 
                 print("\033[93m[ Shouko.dev ] - Select game:\033[0m")
                 games = [
-                    "1. Blox Fruits", "2. Anime Defenders", "3. King Legacy", "4. Fisch",
-                    "5. Bee Swarm Simulator", "6. Anime Vanguards", "7. Pet GO",
-                    "8. Pet Simulator 99", "9. Meme Sea", "10. Anime Adventures",
-                    "11. Anime Last Stand", "12. Da Hood", "13. Da Hood VC", "14. Arise Crossover",
-                    "15. Bubble Gum Simulator", "16. Anime Ranger X", "17. Other game or Private Server Link"
+                    "1. Blox Fruits", "2. Grow A Garden", "3. 99 Nights in the Forest", "4. Other game or Private Server Link"
                 ]
                 for game in games:
                     print(f"\033[96m{game}\033[0m")
 
                 choice = input("\033[93m[ Shouko.dev ] - Enter choice: \033[0m").strip()
                 game_ids = {
-                    "1": "2753915549", "2": "17017769292", "3": "4520749081", "4": "16732694052",
-                    "5": "1537690962", "6": "16146832113", "7": "18901165922", "8": "8737899170",
-                    "9": "10260193230", "10": "8304191830", "11": "12886143095", "12": "2788229376",
-                    "13": "7213786345", "14": "87039211657390", "15": "85896571713843", "16": "72829404259339"
+                    "1": "2753915549", "2": "126884695634066", "3": "79546208627805"
                 }
 
                 if choice in game_ids:
                     server_link = game_ids[choice]
-                elif choice == "17":
+                elif choice == "4":
                     server_link = input("\033[93m[ Shouko.dev ] - Enter game ID or private server link: \033[0m")
                 else:
                     print("\033[1;31m[ Shouko.dev ] - Invalid choice.\033[0m")
@@ -1804,11 +1797,11 @@ def main():
 
                 if config_choice.lower() == "q":
                     globals()["check_exec_enable"] = "1"
-                    globals()["lua_script_template"] = 'loadstring(game:HttpGet("https://repo.rokidmanager.com/RokidManager/neyoshiiuem/main/checkonline.lua"))()'
+                    globals()["lua_script_template"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Trongahihi/Trongahihi/refs/heads/main/check_executor"))()'
                     print("\033[1;32m[ Shouko.dev ] - Default set: Executor + Shouko Check\033[0m")
                 elif config_choice == "1":
                     globals()["check_exec_enable"] = "1"
-                    globals()["lua_script_template"] = 'loadstring(game:HttpGet("https://repo.rokidmanager.com/RokidManager/neyoshiiuem/main/checkonline.lua"))()'
+                    globals()["lua_script_template"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Trongahihi/Trongahihi/refs/heads/main/check_executor"))()'
                     print("\033[1;32m[ Shouko.dev ] - Set to Executor + Shouko Check\033[0m")
                 elif config_choice == "2":
                     globals()["check_exec_enable"] = "0"
@@ -1817,7 +1810,7 @@ def main():
                 else:
                     print("\033[1;31m[ Shouko.dev ] - Invalid choice. Keeping default.\033[0m")
                     globals()["check_exec_enable"] = "1"
-                    globals()["lua_script_template"] = 'loadstring(game:HttpGet("https://repo.rokidmanager.com/RokidManager/neyoshiiuem/main/checkonline.lua"))()'
+                    globals()["lua_script_template"] = 'loadstring(game:HttpGet("https://raw.githubusercontent.com/Trongahihi/Trongahihi/refs/heads/main/check_executor"))()'
 
                 config_file = os.path.join("Shouko.dev", "checkui.lua")
                 if globals()["lua_script_template"]:
