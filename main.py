@@ -1227,7 +1227,7 @@ class ExecutorManager:
                         console.print(f"[bold yellow][ Shouko.dev ] - No valid path found to write Lua script for {executor_name}[/bold yellow]")
 
     @staticmethod
-    def check_executor_status(package_name, continuous=True, max_wait_time=90):
+    def check_executor_status(package_name, continuous=True, max_wait_time=180):
         retry_timeout = time.time() + max_wait_time
         while True:
             for workspace in globals()["workspace_paths"]:
@@ -1253,7 +1253,7 @@ class ExecutorManager:
                     start_time = time.time()
                     executor_loaded = False
 
-                    while time.time() - start_time < 90:
+                    while time.time() - start_time < 180:
                         if ExecutorManager.check_executor_status(package_name):
                             globals()["package_statuses"][package_name]["Status"] = "\033[1;32mExecutor has loaded successfully\033[0m"
                             UIManager.update_status_table()
@@ -1906,3 +1906,4 @@ if __name__ == "__main__":
         print(f"\033[1;31m[ Shouko.dev ] - Error during initialization: {e}\033[0m")
         Utilities.log_error(f"Initialization error: {e}")
         raise
+
