@@ -705,6 +705,7 @@ class RobloxManager:
 
     @staticmethod
     def kill_roblox_processes():
+        return
         packages = RobloxManager.get_roblox_packages()
         running = SystemMonitor.roblox_processes()
         if not running:
@@ -757,7 +758,7 @@ class RobloxManager:
                 '-n', f'{package_name}/com.roblox.client.startup.ActivitySplash'
             ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-            time.sleep(10)
+            time.sleep(5)
 
             with status_lock:
                 globals()["package_statuses"][package_name]["Status"] = f"\033[1;36mJoining Roblox for {package_name}...\033[0m"
@@ -770,7 +771,7 @@ class RobloxManager:
                 '-d', server_link
             ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-            time.sleep(20)
+            time.sleep(5)
             with status_lock:
                 globals()["package_statuses"][package_name]["Status"] = "\033[1;32mJoined Roblox\033[0m"
                 UIManager.update_status_table()
@@ -1061,7 +1062,7 @@ class UIManager:
 
         panel = Panel(
             table,
-            title="[bold yellow]discord.gg/ghmaDgNzDa - Beta Edition[/bold yellow]",
+            title="[bold yellow] Nguyễn Hữu Trọng [/bold yellow]",
             border_style="yellow",
             box=ROUNDED
         )
@@ -1906,4 +1907,3 @@ if __name__ == "__main__":
         print(f"\033[1;31m[ Shouko.dev ] - Error during initialization: {e}\033[0m")
         Utilities.log_error(f"Initialization error: {e}")
         raise
-
