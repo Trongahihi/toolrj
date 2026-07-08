@@ -5,12 +5,15 @@ fi
 
 termux-setup-storage
 yes | pkg update
-. <(curl https://raw.githubusercontent.com/u400822/setup-termux/refs/heads/main/termux-change-repo.sh)
+. <(curl -Ls https://raw.githubusercontent.com/u400822/setup-termux/refs/heads/main/termux-change-repo.sh)
 yes | pkg upgrade
 yes | pkg i python
 yes | pkg i python-pip
 
-# Cài các thư viện Python cần thiết (thêm rich và pytz)
+# Cài đặt các công cụ biên dịch bắt buộc trên Termux (Sửa lỗi cài psutil bị fail)
+yes | pkg install clang python-dev make ndk-sysroot
+
+# Cài đặt các thư viện Python cần thiết
 pip install requests psutil prettytable pycryptodome rich pytz
 
 # Tải file main.py về thư mục Download trên máy
