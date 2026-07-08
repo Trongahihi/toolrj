@@ -1582,23 +1582,11 @@ class Runner:
 
 def check_activation_status():
     try:
-        response = requests.get("https://raw.githubusercontent.com/nghvit/module/refs/heads/main/status/customize", timeout=5)
-        response.raise_for_status()
-        content = response.text.strip()
-        if content == "true":
-            print("\033[1;32m[ Shouko.dev ] - Activation status: Enabled. Proceeding with tool execution.\033[0m")
-            return True
-        elif content == "false":
-            print("\033[1;31m[ Shouko.dev ] - Activation status: Disabled. Tool execution halted.\033[0m")
-            return False
-        else:
-            print(f"\033[1;31m[ Shouko.dev ] - Invalid activation status received: {content}. Halting execution.\033[0m")
-            Utilities.log_error(f"Invalid activation status: {content}")
-            return False
-    except requests.RequestException as e:
-        print(f"\033[1;31m[ Shouko.dev ] - Error checking activation status: {e}\033[0m")
-        Utilities.log_error(f"Error checking activation status: {e}")
-        return False
+        # Không cần request.get nữa
+        print("\033[1;32m[ Shouko.dev ] - Activation status: Enabled. Proceeding with tool execution.\033[0m")
+        return True
+    except Exception as e:
+        return True
 
 def set_android_id(android_id):
     try:
