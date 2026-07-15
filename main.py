@@ -787,16 +787,23 @@ class RobloxManager:
     @staticmethod
     def inject_cookies_and_appstorage():
         RobloxManager.kill_roblox_processes()
-        db_url = "https://raw.githubusercontent.com/nghvit/module/refs/heads/main/import/Cookies"
-        appstorage_url = "https://raw.githubusercontent.com/nghvit/module/refs/heads/main/import/appStorage.json"
 
-        downloaded_db_path = FileManager.download_file(db_url, "Cookies.db", binary=True)
+        # Tu dong tao cookie.db tu cookie.txt truoc khi inject
+        print("\033[1;33m[ Shouko.dev ] - Dang tao cookie.db tu cookie.txt...\033[0m")
+        cookie_db_path = RobloxManager.create_cookie_db_from_txt()
+        if not cookie_db_path:
+            print("\033[1;31m[ Shouko.dev ] - Khong the tao cookie.db. Kiem tra lai cookie.txt!\033[0m")
+            return
+
+        appstorage_url = "https://raw.githubusercontent.com/nghvit/module/refs/heads/main/import/appStorage.json"
         downloaded_appstorage_path = FileManager.download_file(appstorage_url, "appStorage.json", binary=False)
 
-        if not downloaded_db_path or not downloaded_appstorage_path:
-            print("\033[1;31m[ Shouko.dev ] - Failed to download necessary files. Exiting.\033[0m")
-            Utilities.log_error("Failed to download necessary files for cookie and appStorage injection.")
+        if not downloaded_appstorage_path:
+            print("\033[1;31m[ Shouko.dev ] - Failed to download appStorage.json. Exiting.\033[0m")
+            Utilities.log_error("Failed to download appStorage.json for injection.")
             return
+
+        downloaded_db_path = cookie_db_path
 
         packages = RobloxManager.get_roblox_packages()
         if not packages:
@@ -894,6 +901,108 @@ class RobloxManager:
             print(f"\033[1;31mDatabase error during cookie replacement: {e}\033[0m")
         except Exception as e:
             print(f"\033[1;31mError replacing cookie value in database: {e}\033[0m")
+    @staticmethod
+    def create_cookie_db_from_txt():
+        """
+        T\u1ef1 \u0111\u1ed9ng t\u1ea1o file cookie.db t\u1eeb cookie.txt.
+        cookie.db l\u00e0 SQLite database chu\u1ea9n Chrome v\u1edbi b\u1ea3ng cookies ch\u1ee9a .ROBLOSECURITY,
+        d\u00f9ng l\u00e0m template inject v\u00e0o t\u1eebng package Roblox.
+        """
+        current_dir = os.getcwd()
+        cookie_txt_path = os.path.join(current_dir, "cookie.txt")
+        cookie_db_path = os.path.join(current_dir, "cookie.db")
+
+        if not os.path.exists(cookie_txt_path):
+            print("\033[1;31m[ Shouko.dev ] - cookie.txt not found!\033[0m")
+            Utilities.log_error("cookie.txt not found when creating cookie.db.")
+            return None
+
+        cookies = []
+        try:
+            with open(cookie_txt_path, "r") as f:
+                for line in f.readlines():
+                    parts = str(line).strip().split(":")
+                    if len(parts) == 4:
+                        ck = ":".join(parts[2:])
+                    else:
+                        ck = str(line).strip()
+                    if ck.startswith("_|WARNING:"):
+                        cookies.append(ck)
+        except Exception as e:
+            print(f"\033[1;31m[ Shouko.dev ] - Error reading cookie.txt: {e}\033[0m")
+            Utilities.log_error(f"Error reading cookie.txt: {e}")
+            return None
+
+        if not cookies:
+            print("\033[1;31m[ Shouko.dev ] - No valid cookies found in cookie.txt!\033[0m")
+            Utilities.log_error("No valid cookies found in cookie.txt when creating cookie.db.")
+            return None
+
+        try:
+            if os.path.exists(cookie_db_path):
+                os.remove(cookie_db_path)
+
+            conn = sqlite3.connect(cookie_db_path)
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS meta (
+                    key   TEXT NOT NULL UNIQUE PRIMARY KEY,
+                    value TEXT NOT NULL
+                )
+            """)
+            cursor.execute("INSERT OR REPLACE INTO meta VALUES ('version', '24')")
+            cursor.execute("INSERT OR REPLACE INTO meta VALUES ('last_compatible_version', '24')")
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS cookies (
+                    creation_utc        INTEGER NOT NULL,
+                    host_key            TEXT    NOT NULL,
+                    top_frame_site_key  TEXT    NOT NULL DEFAULT '',
+                    name                TEXT    NOT NULL,
+                    value               TEXT    NOT NULL,
+                    encrypted_value     BLOB    NOT NULL DEFAULT '',
+                    path                TEXT    NOT NULL,
+                    expires_utc         INTEGER NOT NULL,
+                    is_secure           INTEGER NOT NULL,
+                    is_httponly         INTEGER NOT NULL,
+                    last_access_utc     INTEGER NOT NULL,
+                    has_expires         INTEGER NOT NULL,
+                    is_persistent       INTEGER NOT NULL,
+                    priority            INTEGER NOT NULL DEFAULT 1,
+                    samesite            INTEGER NOT NULL DEFAULT -1,
+                    source_scheme       INTEGER NOT NULL DEFAULT 2,
+                    source_port         INTEGER NOT NULL DEFAULT 443,
+                    is_same_party       INTEGER NOT NULL DEFAULT 0,
+                    last_update_utc     INTEGER NOT NULL DEFAULT 0
+                )
+            """)
+
+            now_chrome = int(time.time() + 11644473600) * 1000000
+            expires_chrome = int(time.time() + 11644473600 + 31536000) * 1000000
+
+            for i, cookie_value in enumerate(cookies):
+                creation_utc = now_chrome + i
+                cursor.execute("""
+                    INSERT INTO cookies (
+                        creation_utc, host_key, top_frame_site_key, name, value,
+                        encrypted_value, path, expires_utc, is_secure, is_httponly,
+                        last_access_utc, has_expires, is_persistent, priority,
+                        samesite, source_scheme, source_port, is_same_party, last_update_utc
+                    ) VALUES (?, '.roblox.com', '', '.ROBLOSECURITY', ?, '', '/', ?, 1, 1, ?, 1, 1, 1, -1, 2, 443, 0, ?)
+                """, (creation_utc, cookie_value, expires_chrome, now_chrome, now_chrome))
+
+            conn.commit()
+            conn.close()
+
+            print(f"\033[1;32m[ Shouko.dev ] - cookie.db da duoc tao thanh cong voi {len(cookies)} cookie(s) tu cookie.txt!\033[0m")
+            return cookie_db_path
+
+        except Exception as e:
+            print(f"\033[1;31m[ Shouko.dev ] - Error creating cookie.db: {e}\033[0m")
+            Utilities.log_error(f"Error creating cookie.db: {e}")
+            return None
+
 
     @staticmethod
     def format_server_link(input_link):
